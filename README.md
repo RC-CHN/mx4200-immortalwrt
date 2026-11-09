@@ -25,6 +25,17 @@ python3 scripts/build_local.py nss all --work /data/mx4300-op -j 16
 大型文件写入 `--work`，至少预留 30 GiB，完整两套构建建议预留 80 GiB 以上。
 日志位于 `logs/`，成功构建的镜像、配套包与构建记录位于 `artifacts/<variant>/`。
 
+编译完成后检查实际镜像（主机需有 `modinfo`，Ubuntu 由 `kmod` 包提供）：
+
+```sh
+python3 scripts/verify_local.py all --work /data/mx4300-op
+```
+
+验证脚本核对镜像校验和、机型和源码版本，并解包 sysupgrade 检查实际安装的软件包、
+AArch64 程序和内核模块，以及 NSS 默认配置。报告保存在各自的
+`build-record/verification.json`；配套 APK 仓库公钥保存为 `build-record/public-key.pem`。
+这些检查不包含真机启动、无线回程或吞吐测试。
+
 `baseline` 使用 ImmortalWrt 原生无线栈并保留上游项目的 HomeWRK MAC 保护。
 `nss` 额外应用 `local/patches/nss-wifi.patch`，来自
 [openwrt-ppe-nss](https://github.com/JuliusBairaktaris/openwrt-ppe-nss/tree/7d65a3ed836a0071e2f19a5944682f457e02efe0)
