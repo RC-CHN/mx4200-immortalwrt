@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Build pinned HomeWRK/MX4300 images natively on a Linux build host."""
 import argparse
+import fcntl
 import hashlib
 import json
 import os
@@ -34,10 +35,19 @@ def main():
         parser.error('jobs must be positive')
     work = args.work.resolve()
     work.mkdir(parents=True, exist_ok=True)
+    build_lock = (work / f'.{args.variant}.lock').open('a')
+    try:
+        fcntl.flock(build_lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+    except BlockingIOError:
+        sys.exit(f'Another {args.variant} build is active in {work}')
     if args.stage != 'collect' and shutil.disk_usage(work).free < 30 * 1024**3:
         sys.exit('At least 30 GiB free space is required in the build directory.')
     for name in ('sources', 'logs', 'downloads', 'tmp', 'ccache', 'artifacts'):
         (work / name).mkdir(exist_ok=True)
+    # OpenWrt locks downloads under each source tree's tmp/, while partial
+    # archives live in dl/. Sharing a writable dl/ across trees races.
+    downloads = work / 'downloads' / args.variant
+    downloads.mkdir(exist_ok=True)
     source = work / 'sources' / ('immortalwrt' if args.variant == 'baseline' else 'immortalwrt-nss')
     lock = json.loads((ROOT / 'local/sources.lock.json').read_text())
     if not {'packages', 'luci', 'routing', 'telephony', 'nss'} <= lock['feeds'].keys():
@@ -91,8 +101,10 @@ def main():
             raise ValueError('The baseline source contains NSS changes; use a separate build tree')
         protect_homewrk(source)
         dl = source / 'dl'
-        if not dl.exists():
-            dl.symlink_to(work / 'downloads', target_is_directory=True)
+        if dl.is_symlink() and dl.resolve() != downloads:
+            raise ValueError(f'{dl} must point to the isolated cache {downloads}')
+        if not dl.exists() and not dl.is_symlink():
+            dl.symlink_to(downloads, target_is_directory=True)
         feeds = source / 'feeds'
         feeds.mkdir(exist_ok=True)
         selected = {k: v for k, v in lock['feeds'].items() if args.variant == 'nss' or k != 'nss'}
