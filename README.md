@@ -1,5 +1,53 @@
 # MX4200 ImmortalWrt
 
+## 本分支：HomeWRK / MX4300 本地 Mesh 实验构建
+
+`feat/homewrk-mesh-nss-local` 在下述上游项目之外提供独立的本地构建入口。
+源码和 feeds 固定在 `local/sources.lock.json`，内核为 Linux 6.18.60。
+构建生成 HomeWRK 和 MX4300 各自的临时启动、安装及升级镜像，以及同次编译的软件包仓库。
+两种分区布局的镜像不可混刷，机身或卖家的型号说明不能代替分区核实。
+
+本地配置包含完整 `wpad-openssl`、usteer / LuCI、WireGuard、USB3 / UAS、
+ext4 / exFAT、iperf3 和抓包工具。无线国家、信道、SSID、密钥和节点角色需要按现场设置。
+usteer 预装但默认不启动；它是可选的漫游协调服务，802.11s 回程本身不依赖它。
+本地构建不调用上游的 `user/default/custom.sh`，因此沿用 ImmortalWrt 的管理地址、
+无线初始状态和主题，不继承下面所述的 US 区域及固定无线密码。
+
+在安装好 OpenWrt 编译依赖的 Linux 主机运行：
+
+```sh
+python3 scripts/build_local.py baseline all --work /data/mx4300-op -j 16
+python3 scripts/build_local.py nss all --work /data/mx4300-op -j 16
+```
+
+可将 `all` 换成 `prepare`、`download`、`toolchain`、`compile` 或 `collect`。
+默认继承进程代理；可用 `--no-proxy` 直连，或用 `--proxy http://HOST:PORT` 单独指定。
+大型文件写入 `--work`，至少预留 30 GiB，完整两套构建建议预留 80 GiB 以上。
+日志位于 `logs/`，成功构建的镜像、配套包与构建记录位于 `artifacts/<variant>/`。
+
+`baseline` 使用 ImmortalWrt 原生无线栈并保留上游项目的 HomeWRK MAC 保护。
+`nss` 额外应用 `local/patches/nss-wifi.patch`，来自
+[openwrt-ppe-nss](https://github.com/JuliusBairaktaris/openwrt-ppe-nss/tree/7d65a3ed836a0071e2f19a5944682f457e02efe0)
+的无线驱动、ath11k、设备树和共享 PPE/EDMA 修改，保持 ImmortalWrt 应用 feeds。
+补丁不导入该项目的 GitHub 自动化、通用 CAKE/PPP 调整或默认开启卸载的设置。
+原代码和补丁保留原许可；NSS 固件使用其发行包内的独立许可。
+
+NSS 实验版选择支持 Mesh 的 **NSS 固件 11.4**，默认 `offload=0`。
+完成普通无线、USB 恢复和完整回程路径测试后，才在测试设备上打开卸载做对照：
+
+```sh
+uci set nss-wifi.general.offload='1'
+uci commit nss-wifi
+reboot
+```
+
+改回 `offload='0'` 并重启可关闭卸载。重点实测无线终端经过节点和无线回程的双向流量，
+包括两个节点同时传输、漫游和持续负载；编译与镜像校验通过不代表硬件测试通过。
+WireGuard 单独测量，不承诺 NSS 加速其加密。内核模块使用本次构建的配套包，不能强装
+其他 snapshot 的 kmod。首次刷写前核实设备身份、保存原机分区备份并验证 TTL + USB 启动。
+
+---
+
 基于 [ImmortalWrt 官方最新 snapshot 源码](https://github.com/immortalwrt/immortalwrt/tree/master)，适用于 Linksys MX4200v1 / MX4200v2。
 
 2026.11.05：新增 Linksys MX4300 / HomeWRK 机型固件。

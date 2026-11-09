@@ -115,7 +115,8 @@ docker_exec() { shift; "$@"; }
                 config=(base/'.config').read_text()
                 if case=='missing-app': config=config.replace('CONFIG_PACKAGE_luci-app-ttyd=y','')
                 if case=='excluded-module':
-                    config += '\nCONFIG_PACKAGE_usteer=m\n'
+                    config = config.replace('CONFIG_PACKAGE_luci-app-attendedsysupgrade=n',
+                                            'CONFIG_PACKAGE_luci-app-attendedsysupgrade=m')
                     self.assertNotEqual(config, (base/'.config').read_text())
                 if case=='missing-default': config=config.replace('CONFIG_PACKAGE_fixture-driver=m','')
                 (base/'.config').write_text(config)

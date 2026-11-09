@@ -1,0 +1,5 @@
+#!/bin/sh
+# The image contains roaming tools, but node roles, country, channels and keys
+# must be configured for the actual installation before enabling coordination.
+/etc/init.d/usteer disable
+exit 0

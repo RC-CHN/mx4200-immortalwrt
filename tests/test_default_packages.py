@@ -71,17 +71,16 @@ class DefaultPackageTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'excluded'):
             check(config + 'CONFIG_PACKAGE_excluded=m\n', '', requested)
 
-    def test_usteer_is_rejected_without_recipe_exclusions(self):
-        # Package policy is checked on the resolved config, not on optional
-        # historical '=n' lines in config.diff. Both built-in and module fail.
+    def test_roaming_packages_can_be_requested_and_must_survive_defconfig(self):
         for package in ('usteer', 'luci-app-usteer', 'luci-i18n-usteer-zh-cn'):
             for value in ('y', 'm'):
                 with self.subTest(package=package, value=value):
+                    requested = f'CONFIG_PACKAGE_{package}={value}\n'
                     config = ('CONFIG_MODULE_DEFAULT_driver=y\nCONFIG_PACKAGE_driver=m\n'
-                              f'CONFIG_PACKAGE_{package}={value}\n')
+                              + requested)
+                    check(config, '', requested)
                     with self.assertRaisesRegex(ValueError, re.escape(package)):
-                        check(config, '', '')
-        check('CONFIG_MODULE_DEFAULT_driver=y\nCONFIG_PACKAGE_driver=m\n', '', '')
+                        check(config.replace(requested, ''), '', requested)
 
     def test_formal_workflow_runs_gate_with_recipe(self):
         import subprocess
@@ -107,7 +106,8 @@ class DefaultPackageTests(unittest.TestCase):
                 if fault == 'missing-app':
                     broken = broken.replace('CONFIG_PACKAGE_luci-app-ttyd=y', '')
                 if fault == 'excluded-module':
-                    broken += '\nCONFIG_PACKAGE_usteer=m\n'
+                    broken = broken.replace('CONFIG_PACKAGE_luci-app-attendedsysupgrade=n',
+                                            'CONFIG_PACKAGE_luci-app-attendedsysupgrade=m')
                     self.assertNotEqual(broken, config)
                 for name, symbol in (
                         ('missing-v2', 'TARGET_DEVICE_qualcommax_ipq807x_DEVICE_linksys_mx4200v2'),

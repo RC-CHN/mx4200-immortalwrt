@@ -1,3 +1,5 @@
 *.txt text eol=lf
 *.sh text eol=lf
 *.defaults text eol=lf
+# Diff context intentionally preserves spaces before tabs and blank lines.
+local/patches/*.patch -whitespace
