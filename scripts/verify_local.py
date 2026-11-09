@@ -17,6 +17,11 @@ REQUIRED = {
     'kmod-ath11k-ahb', 'kmod-usb3', 'kmod-usb-dwc3-qcom',
     'kmod-usb-storage-uas', 'kmod-fs-ext4', 'kmod-fs-exfat',
     'block-mount', 'usbutils', 'iperf3', 'tcpdump-mini',
+    'kmod-inet-diag', 'kmod-netlink-diag', 'ip-full', 'dnsmasq-full',
+    'nftables-json', 'kmod-nfnetlink-log',
+    'kmod-fs-cifs', 'cifsmount', 'kmod-fs-ksmbd', 'ksmbd-server', 'luci-app-ksmbd',
+    'kmod-fs-nfs-v3', 'kmod-fs-nfs-v4', 'kmod-fs-nfsd',
+    'nfs-utils-v4', 'nfs-kernel-server-v4', 'nfs-kernel-server-utils', 'luci-app-nfs',
 }
 
 
@@ -44,6 +49,11 @@ def verify(work, variant):
     host = source / 'staging_dir/host/bin'
     profiles = json.loads((target / 'profiles.json').read_text())
     lock = json.loads((artifact / 'build-record/sources.lock.json').read_text())
+    requested = (artifact / 'build-record/requested.config').read_text()
+    nft_packages = set(re.findall(r'^CONFIG_PACKAGE_(kmod-nft-[^=\n]+)=y$', requested, re.M))
+    available_nft = set(re.findall(r'^Package: (kmod-nft-.+)$',
+                                   (source / 'tmp/.packageinfo').read_text(), re.M))
+    require(nft_packages == available_nft, 'Not all nftables extension packages are selected')
     require(profiles['git_commit'] == lock['source']['commit'], 'Source commit mismatch')
     require(profiles['target'] == 'qualcommax/ipq807x', 'Wrong image target')
     require(set(profiles['profiles']) == {'linksys_homewrk', 'linksys_mx4300'}, 'Wrong device set')
@@ -82,21 +92,54 @@ def verify(work, variant):
             subprocess.run([host / 'unsquashfs4', '-no-progress', '-processors', '2',
                             '-excludes', '-dest', fs, directory / 'root.squashfs', 'dev'],
                            check=True, stdout=subprocess.DEVNULL)
-            packages = set(re.findall(r'^P:(.+)$', (fs / 'lib/apk/db/installed').read_text(), re.M))
+            installed = (fs / 'lib/apk/db/installed').read_text()
+            entries = {}
+            for block in installed.split('\n\n'):
+                fields = dict(re.findall(r'^([PVD]):(.*)$', block, re.M))
+                if 'P' in fields:
+                    entries[fields['P']] = fields
+            packages = set(entries)
             require(profiles['version_code'] in (fs / 'usr/lib/os-release').read_text(),
                     'Wrong local firmware version')
             require(REQUIRED <= packages, f'{device}: missing packages {sorted(REQUIRED - packages)}')
+            require(nft_packages <= packages, f'{device}: missing nftables extensions')
+            require(not {'sing-box', 'sing-box-tiny', 'luci-app-homeproxy', 'luci-app-openclash',
+                         'luci-app-passwall', 'luci-app-passwall2'} & packages,
+                    'Proxy applications must remain a separate user choice')
+            require(not {'nfs-utils', 'nfs-kernel-server', 'dnsmasq'} & packages,
+                    'Conflicting package variants in rootfs')
             require('luci-app-advanced-reboot' not in packages, 'Unexpected reboot partition selector')
             kernel = profiles['linux_kernel']['version']
+            kernel_abi = (f'{kernel}~{profiles["linux_kernel"]["vermagic"]}'
+                          f'-r{profiles["linux_kernel"]["release"]}')
+            require(entries['kernel']['V'] == kernel_abi, 'Installed kernel ABI differs from image metadata')
+            for name, fields in entries.items():
+                if name.startswith('kmod-'):
+                    require(f'kernel={kernel_abi}' in fields.get('D', '').split(),
+                            f'Package {name} does not match the installed kernel ABI')
             modules = fs / 'lib/modules' / kernel
-            for name in ('wireguard', 'ath11k', 'ath11k_ahb', 'xhci-hcd', 'dwc3-qcom', 'uas'):
+            for name in ('wireguard', 'ath11k', 'ath11k_ahb', 'xhci-hcd', 'dwc3-qcom', 'uas',
+                         'tun', 'nft_tproxy', 'nft_socket', 'nft_meta_bridge',
+                         'nft_queue', 'nft_compat', 'nfnetlink_log',
+                         'cifs', 'ksmbd', 'nfs', 'nfsv3', 'nfsv4', 'nfsd'):
                 module = modules / f'{name}.ko'
                 aarch64(module)
                 require(output(['modinfo', '-F', 'vermagic', module]).startswith(kernel + ' '),
                         f'Kernel mismatch: {name}')
             aarch64(fs / 'usr/bin/wg')
             aarch64(fs / 'usr/sbin/wpad')
+            for binary in ('usr/sbin/mount.cifs', 'sbin/mount.nfs', 'usr/libexec/ksmbd.tools',
+                           'usr/sbin/rpc.nfsd', 'usr/sbin/exportfs'):
+                aarch64(fs / binary)
             require((fs / 'etc/uci-defaults/98-local-mesh').is_file(), 'Missing roaming startup policy')
+            service_policy = fs / 'etc/uci-defaults/99-local-services'
+            original_policy = artifact / 'build-record/local-inputs/files/etc/uci-defaults/99-local-services'
+            require(service_policy.read_bytes() == original_policy.read_bytes() and
+                    service_policy.stat().st_mode & 0o111, 'Missing sharing startup policy')
+            require(not re.search(r'^\s*[^#\s]', (fs / 'etc/exports').read_text(), re.M),
+                    'Unexpected preconfigured NFS exports')
+            require(not re.search(r'^\s*config\s+share\b', (fs / 'etc/config/ksmbd').read_text(), re.M),
+                    'Unexpected preconfigured SMB shares')
             params = output(['modinfo', '-p', modules / 'ath11k.ko'])
             if variant == 'nss':
                 require({'kmod-nss-wifi-drv', 'nss-firmware-ipq807x', 'ppe-help'} <= packages,
@@ -116,8 +159,11 @@ def verify(work, variant):
                         'Baseline unexpectedly contains NSS offload')
             reports.append({'device': device, 'compatible': compatible, 'images_verified': len(profile['images']),
                             'installed_packages': len(packages), 'kernel': kernel,
-                            'sysupgrade_sha256': image['sha256'], 'nss_default_off': variant == 'nss'})
+                            'sysupgrade_sha256': image['sha256'], 'nss_default_off': variant == 'nss',
+                            'nft_extensions': sorted(nft_packages), 'sharing_default_off': True,
+                            'kernel_package_abi': kernel_abi})
     report = {'variant': variant, 'source_commit': profiles['git_commit'],
+              'version_code': profiles['version_code'],
               'kernel': profiles['linux_kernel'], 'hardware_tested': False, 'devices': reports}
     (artifact / 'build-record/verification.json').write_text(json.dumps(report, indent=2) + '\n')
     shutil.copy2(source / 'public-key.pem', artifact / 'build-record/public-key.pem')

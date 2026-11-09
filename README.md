@@ -9,6 +9,14 @@
 
 本地配置包含完整 `wpad-openssl`、usteer / LuCI、WireGuard、USB3 / UAS、
 ext4 / exFAT、iperf3 和抓包工具。无线国家、信道、SSID、密钥和节点角色需要按现场设置。
+本地构建 r2 增加当前固定源码中的全部 15 个 `kmod-nft-*` 扩展，包含 TPROXY、socket、
+bridge、netdev、queue、compat、xfrm 等，另带 NFLOG、完整 `ip` 命令及支持 nftset 的
+`dnsmasq-full`。按用户选择，仅准备代理底层，不预装代理客户端或订阅。
+
+SMB 使用 CIFS 挂载客户端和 ksmbd 的 SMB2/3 服务端；NFS 带 v3/v4 客户端、v4 服务端、
+管理工具及 LuCI 页面。ksmbd、NFS、rpcbind 和 WSD 发现服务在首次启动时禁用，没有预设共享目录；
+使用时先配置磁盘、用户、允许访问的客户端及导出目录，再启动对应服务。
+文件共享消耗的 CPU、内存和带宽取决于实际传输，代理/过滤与 NSS 的组合也需要真机验证。
 usteer 预装但默认不启动；它是可选的漫游协调服务，802.11s 回程本身不依赖它。
 本地构建不调用上游的 `user/default/custom.sh`，因此沿用 ImmortalWrt 的管理地址、
 无线初始状态和主题，不继承下面所述的 US 区域及固定无线密码。
@@ -16,14 +24,17 @@ usteer 预装但默认不启动；它是可选的漫游协调服务，802.11s �
 在安装好 OpenWrt 编译依赖的 Linux 主机运行：
 
 ```sh
-python3 scripts/build_local.py baseline all --work /data/mx4300-op -j 16
-python3 scripts/build_local.py nss all --work /data/mx4300-op -j 16
+python3 scripts/build_local.py baseline all --work /data/mx4300-op -j 32
+python3 scripts/build_local.py nss all --work /data/mx4300-op -j 32
 ```
 
 可将 `all` 换成 `prepare`、`download`、`toolchain`、`compile` 或 `collect`。
 默认继承进程代理；可用 `--no-proxy` 直连，或用 `--proxy http://HOST:PORT` 单独指定。
 大型文件写入 `--work`，至少预留 30 GiB，完整两套构建建议预留 80 GiB 以上。
 日志位于 `logs/`，成功构建的镜像、配套包与构建记录位于 `artifacts/<variant>/`。
+上面的并发数用于本次 52 核、104 线程、64 GiB 内存主机，两套同时执行时合计最多 64 个任务；
+其他主机应按可用内存和 CPU 调整 `-j`。`local/sources.lock.json` 中的 `build_revision`
+区分本地功能配置版本，镜像文件名以 `-r2-` 标识本次扩展构建。
 
 编译完成后检查实际镜像（主机需有 `modinfo`，Ubuntu 由 `kmod` 包提供）：
 
@@ -34,6 +45,7 @@ python3 scripts/verify_local.py all --work /data/mx4300-op
 验证脚本核对镜像校验和、机型和源码版本，并解包 sysupgrade 检查实际安装的软件包、
 AArch64 程序和内核模块，以及 NSS 默认配置。报告保存在各自的
 `build-record/verification.json`；配套 APK 仓库公钥保存为 `build-record/public-key.pem`。
+检查还覆盖全部 nftables 扩展、SMB/NFS 客户端与服务端，以及默认关闭共享的设置。
 这些检查不包含真机启动、无线回程或吞吐测试。
 
 `baseline` 使用 ImmortalWrt 原生无线栈并保留上游项目的 HomeWRK MAC 保护。

@@ -121,7 +121,8 @@ def main():
         if args.variant == 'nss':
             requested += '\n' + (ROOT / 'local/nss.config').read_text()
         requested += (f'\nCONFIG_CCACHE_DIR="{work / "ccache"}"\nCONFIG_VERSIONOPT=y\n'
-                      f'CONFIG_VERSION_CODE="local-{args.variant}-{lock["source"]["commit"][:12]}"\n')
+                      f'CONFIG_VERSION_CODE="local-{args.variant}-{lock["source"]["commit"][:12]}'
+                      f'-r{lock["build_revision"]}"\n')
         (source / '.config').write_text(requested)
         shutil.copytree(ROOT / 'local/files', source / 'files', dirs_exist_ok=True)
         if args.variant == 'nss':
