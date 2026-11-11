@@ -1,0 +1,7 @@
+{
+  "mx4300-nss": {
+    "description": "Read NSS runtime state and configure NSS for the next boot",
+    "read": { "ubus": { "mx4300.nss": ["status"] }, "uci": ["nss-wifi"] },
+    "write": { "ubus": { "mx4300.nss": ["retry"] }, "uci": ["nss-wifi"] }
+  }
+}

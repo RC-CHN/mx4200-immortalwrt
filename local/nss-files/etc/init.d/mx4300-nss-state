@@ -1,0 +1,6 @@
+#!/bin/sh /etc/rc.common
+START=18
+boot() {
+	uci -q get nss-wifi.general.offload > /tmp/mx4300-nss-boot-requested
+	[ ! -e /etc/nss-wifi.pending ] || touch /tmp/mx4300-nss-guarded
+}

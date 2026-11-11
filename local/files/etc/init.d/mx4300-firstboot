@@ -1,0 +1,59 @@
+#!/bin/sh /etc/rc.common
+# NSS loads ath11k at S19. Configure the radios after that and before S20network.
+START=20
+boot() {
+	[ "$(uci -q get mx4300.defaults.wifi_pending)" = 1 ] || return 0
+	/sbin/wifi config
+	suffix="$(uci -q get mx4300.defaults.suffix)"
+	count=0
+	. /lib/functions.sh
+	# Never leave the upstream unencrypted SSID on air if identity lookup fails.
+	case "$suffix" in
+		??????) case "$suffix" in *[!0-9A-F]*) suffix=;; esac;;
+		*) suffix=;;
+	esac
+	if [ -z "$suffix" ]; then
+		disable_radio() {
+			uci set wireless.$1.disabled=1
+			uci -q set wireless.default_$1.disabled=1
+		}
+		config_load wireless
+		config_foreach disable_radio wifi-device
+		uci commit wireless
+		logger -t mx4300 'Factory identity missing; Wi-Fi kept disabled; use wired management'
+		return 1
+	fi
+	configure_radio() {
+		local radio="$1" path band suffix_band channel width
+		config_get path "$radio" path
+		case "$path" in
+			platform/soc@0/c000000.wifi) band=5g; suffix_band=5G; channel=36; width=HE80;;
+			platform/soc@0/c000000.wifi+1) band=2g; suffix_band=2G; channel=6; width=HE20;;
+			platform/soc@0/c000000.wifi+2) band=5g; suffix_band=5G2; channel=149; width=HE80;;
+			*) return;;
+		esac
+		uci -q batch <<EOF
+set wireless.$radio.band=$band
+set wireless.$radio.channel=$channel
+set wireless.$radio.htmode=$width
+set wireless.$radio.country=CN
+set wireless.$radio.txpower=17
+set wireless.$radio.disabled=0
+set wireless.default_$radio=wifi-iface
+set wireless.default_$radio.device=$radio
+set wireless.default_$radio.network=lan
+set wireless.default_$radio.mode=ap
+set wireless.default_$radio.ssid=MX4300-$suffix-$suffix_band
+set wireless.default_$radio.encryption=psk2
+set wireless.default_$radio.key=Mx4300CN
+set wireless.default_$radio.disabled=0
+EOF
+		count=$((count + 1))
+	}
+	config_load wireless
+	config_foreach configure_radio wifi-device
+	[ "$count" = 3 ] || { logger -t mx4300 "Only $count radios available; will retry next boot"; return 1; }
+	uci commit wireless
+	uci set mx4300.defaults.wifi_pending=0
+	uci commit mx4300
+}

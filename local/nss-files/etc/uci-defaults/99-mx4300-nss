@@ -1,0 +1,3 @@
+#!/bin/sh
+/etc/init.d/mx4300-nss-state enable
+exit 0

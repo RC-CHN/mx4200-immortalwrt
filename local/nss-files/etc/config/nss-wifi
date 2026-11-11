@@ -1,5 +1,5 @@
-# Enable offload explicitly after USB recovery and the host data path work.
+# Default wireless acceleration; change in LuCI and reboot to apply.
 # Mesh requires the 11.4 NSS firmware line; this is not the Linux version.
 config general 'general'
-	option offload '0'
+	option offload '1'
 	option firmware '11.4'

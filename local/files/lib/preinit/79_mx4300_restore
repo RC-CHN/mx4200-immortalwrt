@@ -1,0 +1,7 @@
+#!/bin/sh
+# Called after mount_root exposes the saved archive, before it is unpacked.
+mx4300_detect_restore() {
+	[ ! -f /sysupgrade.tgz ] && [ ! -f /tmp/sysupgrade.tar ] ||
+		touch /tmp/mx4300-config-restored
+}
+boot_hook_add preinit_mount_root mx4300_detect_restore

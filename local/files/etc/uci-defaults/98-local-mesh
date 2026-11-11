@@ -1,5 +1,6 @@
 #!/bin/sh
 # The image contains roaming tools, but node roles, country, channels and keys
 # must be configured for the actual installation before enabling coordination.
+[ ! -e /tmp/mx4300-config-restored ] || exit 0
 /etc/init.d/usteer disable
 exit 0

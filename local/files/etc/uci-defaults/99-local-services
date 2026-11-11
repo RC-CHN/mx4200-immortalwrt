@@ -1,5 +1,6 @@
 #!/bin/sh
 # Install the sharing tools, but let the owner choose disks, exports and users.
+[ ! -e /tmp/mx4300-config-restored ] || exit 0
 for service in ksmbd nfs nfsd rpcbind wsdd2; do
 	[ ! -x "/etc/init.d/$service" ] || "/etc/init.d/$service" disable
 done

@@ -1,0 +1,12 @@
+config global
+	option login_style 'centered'
+	option primary '#164e78'
+	option dark_primary '#22d3ee'
+	option dark_primary_mode 'custom'
+	option dark_glass_mode 'inherit'
+	option blur '12'
+	option blur_dark '12'
+	option transparency '0.9'
+	option transparency_dark '0.9'
+	option mode 'normal'
+	option online_wallpaper 'none'

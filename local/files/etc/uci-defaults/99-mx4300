@@ -1,0 +1,34 @@
+#!/bin/sh
+. /lib/functions/system.sh
+case "$(board_name)" in linksys,homewrk|linksys,mx4300) ;; *) exit 0;; esac
+/etc/init.d/mx4300-firstboot enable
+# Config-preserving sysupgrades must not reset credentials or wireless settings,
+# including upgrades from firmware which predates our defaults marker.
+[ ! -e /tmp/mx4300-config-restored ] || exit 0
+[ "$(uci -q get mx4300.defaults.applied)" != 1 ] || exit 0
+touch /etc/config/mx4300
+uci set mx4300.defaults=defaults
+uci set mx4300.defaults.wifi_pending=1
+uci commit mx4300
+# Establish management authentication even if factory identity cannot be read.
+if [ -z "$(awk -F: '$1 == "root" { print $2 }' /etc/shadow)" ]; then
+	printf '%s\n%s\n' 'Mx4300CN' 'Mx4300CN' | passwd root || exit 1
+fi
+mac="$(mtd_get_mac_ascii devinfo mac_address)"
+[ -n "$mac" ] || mac="$(mtd_get_mac_ascii devinfo hw_mac_addr)"
+suffix="$(echo "$mac" | tr -d ':' | tail -c 7 | tr 'a-f' 'A-F')"
+case "$suffix" in ??????) ;; *) logger -t mx4300 'Factory MAC unavailable; refusing unstable defaults'; exit 1;; esac
+case "$suffix" in *[!0-9A-F]*) exit 1;; esac
+uci -q batch <<EOF
+set mx4300.defaults=defaults
+set mx4300.defaults.suffix=$suffix
+set mx4300.defaults.wifi_pending=1
+set system.@system[0].hostname=mx4300-$(echo "$suffix" | tr 'A-F' 'a-f')
+set system.@system[0].timezone=CST-8
+set system.@system[0].zonename=Asia/Shanghai
+set luci.main.lang=zh_cn
+set luci.main.mediaurlbase=/luci-static/argon
+EOF
+uci set mx4300.defaults.applied=1
+uci commit
+exit 0

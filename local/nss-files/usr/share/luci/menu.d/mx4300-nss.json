@@ -1,0 +1,8 @@
+{
+  "admin/network/nss": {
+    "title": "NSS 无线加速",
+    "order": 25,
+    "action": { "type": "view", "path": "mx4300/nss" },
+    "depends": { "acl": ["mx4300-nss"], "uci": { "nss-wifi": true } }
+  }
+}

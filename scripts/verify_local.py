@@ -12,7 +12,7 @@ import tempfile
 
 
 REQUIRED = {
-    'base-files', 'wpad-openssl', 'usteer', 'luci-app-usteer',
+    'base-files', 'wpad-openssl', 'usteer', 'luci-app-usteer', 'luci-theme-argon',
     'luci-proto-wireguard', 'wireguard-tools', 'kmod-wireguard', 'kmod-tun',
     'kmod-ath11k-ahb', 'kmod-usb3', 'kmod-usb-dwc3-qcom',
     'kmod-usb-storage-uas', 'kmod-fs-ext4', 'kmod-fs-exfat',
@@ -107,6 +107,20 @@ def verify(work, variant):
                 if 'P' in fields:
                     entries[fields['P']] = fields
             packages = set(entries)
+            # Inspect the delivered filesystem, including executable modes;
+            # source overlays alone do not prove that the image contains them.
+            overlay_files = {}
+            for overlay in ('files', 'nss-files') if variant == 'nss' else ('files',):
+                root = artifact / 'build-record/local-inputs' / overlay
+                for item in root.rglob('*'):
+                    if item.is_file():
+                        overlay_files[item.relative_to(root)] = item
+            for relative, original in overlay_files.items():
+                delivered = fs / relative
+                require(delivered.is_file() and delivered.read_bytes() == original.read_bytes(),
+                        f'Custom image payload differs: {relative}')
+                require(delivered.stat().st_mode & 0o111 == original.stat().st_mode & 0o111,
+                        f'Custom executable mode differs: {relative}')
             require(profiles['version_code'] in (fs / 'usr/lib/os-release').read_text(),
                     'Wrong local firmware version')
             require(REQUIRED <= packages, f'{device}: missing packages {sorted(REQUIRED - packages)}')
@@ -157,7 +171,7 @@ def verify(work, variant):
                         'NSS driver kernel mismatch')
                 require('nss_offload:' in params, 'ath11k lacks NSS support')
                 config = (fs / 'etc/config/nss-wifi').read_text()
-                require("option offload '0'" in config and "option firmware '11.4'" in config,
+                require("option offload '1'" in config and "option firmware '11.4'" in config,
                         'Wrong NSS defaults')
                 for core in (0, 1):
                     require((fs / f'lib/firmware/qca-nss{core}-retail-11.4.bin').stat().st_size > 4096,
@@ -167,7 +181,7 @@ def verify(work, variant):
                         'Baseline unexpectedly contains NSS offload')
             reports.append({'device': device, 'compatible': compatible, 'images_verified': len(profile['images']),
                             'installed_packages': len(packages), 'kernel': kernel,
-                            'sysupgrade_sha256': image['sha256'], 'nss_default_off': variant == 'nss',
+                            'sysupgrade_sha256': image['sha256'], 'nss_default_on': variant == 'nss',
                             'nft_extensions': sorted(nft_packages), 'sharing_default_off': True,
                             'kernel_package_abi': kernel_abi})
     report = {'variant': variant, 'source_commit': profiles['git_commit'],
