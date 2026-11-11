@@ -50,7 +50,8 @@ python3 scripts/build_local.py nss all --work /data/mx4300-op -j 32
 日志位于 `logs/`，成功构建的镜像、配套包与构建记录位于 `artifacts/<variant>/`。
 上面的并发数用于本次 52 核、104 线程、64 GiB 内存主机，两套同时执行时合计最多 64 个任务；
 其他主机应按可用内存和 CPU 调整 `-j`。`local/sources.lock.json` 中的 `build_revision`
-区分本地构建版本，当前镜像文件名包含 `-r4-`，保留 r3 的模块缓存修正。
+区分本地构建版本，当前镜像文件名包含 `-r5-`，保留 r3 的模块缓存修正。
+r5 修正 NSS 关闭时的版本显示：核心未启动时显示“未加载”，不把驱动的内置默认参数当成运行中的固件。
 
 编译完成后检查实际镜像（主机需有 `modinfo`，Ubuntu 由 `kmod` 包提供）：
 

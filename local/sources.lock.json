@@ -1,5 +1,5 @@
 {
-  "build_revision": 4,
+  "build_revision": 5,
   "source": {
     "url": "https://github.com/immortalwrt/immortalwrt.git",
     "commit": "4765b657625ec5bbda74b44400465fe043802b30"

@@ -21,7 +21,11 @@ call)
 	ath="$(cat /sys/module/ath11k/parameters/nss_offload 2>/dev/null)"
 	boot="$(cat /sys/kernel/debug/39000000.nss/boot 2>/dev/null)"
 	json_add_boolean running "$([ "$ath" = Y ] && [ "$boot" = 1 ] && echo 1 || echo 0)"
-	json_add_string firmware "$(cat /sys/module/nss_wifi_drv/parameters/firmware 2>/dev/null)"
+	# The unbooted driver parameter defaults to 12.5; it is not loaded firmware.
+	firmware=
+	[ "$ath" != Y ] || [ "$boot" != 1 ] ||
+		firmware="$(cat /sys/module/nss_wifi_drv/parameters/firmware 2>/dev/null)"
+	json_add_string firmware "$firmware"
 	json_add_boolean software_flow "$([ "$(uci -q get firewall.@defaults[0].flow_offloading)" = 1 ] && echo 1 || echo 0)"
 	json_add_boolean hardware_flow "$([ "$(uci -q get firewall.@defaults[0].flow_offloading_hw)" = 1 ] && echo 1 || echo 0)"
 	json_dump
