@@ -15,6 +15,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'scripts'))
 from check_defaults import check
 from homewrk_dts import prepare as protect_homewrk
+from kernel_module_cache import prepare_module_cache
 
 
 def git(path, *args):
@@ -136,7 +137,7 @@ def main():
         shutil.copy2(ROOT / 'local/sources.lock.json', record)
         shutil.copy2(source / 'feeds.conf', record)
         shutil.copytree(ROOT / 'local', record / 'local-inputs', dirs_exist_ok=True)
-        for name in ('build_local.py', 'homewrk_dts.py', 'check_defaults.py'):
+        for name in ('build_local.py', 'homewrk_dts.py', 'check_defaults.py', 'kernel_module_cache.py'):
             shutil.copy2(ROOT / 'scripts' / name, record / name)
         (record / 'source.diff').write_text(git(source, 'diff', '--binary') + '\n')
         print('Configuration and requested package checks passed.', flush=True)
@@ -173,7 +174,11 @@ def main():
         run('tools', ['make', f'-j{args.jobs}', 'tools/install', 'V=s'])
         run('toolchain', ['make', f'-j{args.jobs}', 'toolchain/install', 'V=s'])
     if args.stage in ('compile', 'all'):
+        module_state = work / f'.{args.variant}-kernel-module-cache.json'
+        module_identity = prepare_module_cache(source, module_state, lock['source']['commit'], run, args.jobs)
         run('compile', ['make', f'-j{args.jobs}', 'V=s'])
+        module_state.write_text(json.dumps(module_identity, indent=2) + '\n')
+        shutil.copy2(module_state, work / 'artifacts' / args.variant / 'build-record/kernel-module-cache.json')
         collect()
 
 

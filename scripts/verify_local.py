@@ -55,6 +55,14 @@ def verify(work, variant):
                                    (source / 'tmp/.packageinfo').read_text(), re.M))
     require(nft_packages == available_nft, 'Not all nftables extension packages are selected')
     require(profiles['git_commit'] == lock['source']['commit'], 'Source commit mismatch')
+    module_cache = None
+    if lock['build_revision'] >= 3:
+        module_cache = json.loads((artifact / 'build-record/kernel-module-cache.json').read_text())
+        require(module_cache['schema'] == 1 and module_cache['source_commit'] == profiles['git_commit'],
+                'Missing compatible external-module rebuild record')
+        require(module_cache['vermagic'] == profiles['linux_kernel']['vermagic'] and
+                module_cache['kernel'] == 'linux-' + profiles['linux_kernel']['version'],
+                'External-module cache ABI differs from image kernel')
     require(profiles['target'] == 'qualcommax/ipq807x', 'Wrong image target')
     require(set(profiles['profiles']) == {'linksys_homewrk', 'linksys_mx4300'}, 'Wrong device set')
     subprocess.run(['sha256sum', '--check', '--quiet', 'sha256sums'], cwd=target, check=True)
@@ -164,7 +172,8 @@ def verify(work, variant):
                             'kernel_package_abi': kernel_abi})
     report = {'variant': variant, 'source_commit': profiles['git_commit'],
               'version_code': profiles['version_code'],
-              'kernel': profiles['linux_kernel'], 'hardware_tested': False, 'devices': reports}
+              'kernel': profiles['linux_kernel'], 'hardware_tested': False, 'devices': reports,
+              'external_module_cache': module_cache}
     (artifact / 'build-record/verification.json').write_text(json.dumps(report, indent=2) + '\n')
     shutil.copy2(source / 'public-key.pem', artifact / 'build-record/public-key.pem')
     print(json.dumps(report, ensure_ascii=False), flush=True)
