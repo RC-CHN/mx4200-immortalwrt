@@ -16,6 +16,7 @@ sys.path.insert(0, str(ROOT / 'scripts'))
 from check_defaults import check
 from homewrk_dts import prepare as protect_homewrk
 from kernel_module_cache import prepare_module_cache
+from local_overlay import sync as sync_overlay
 
 
 def git(path, *args):
@@ -125,19 +126,21 @@ def main():
                       f'CONFIG_VERSION_CODE="local-{args.variant}-{lock["source"]["commit"][:12]}'
                       f'-r{lock["build_revision"]}"\n')
         (source / '.config').write_text(requested)
-        shutil.copytree(ROOT / 'local/files', source / 'files', dirs_exist_ok=True)
-        if args.variant == 'nss':
-            shutil.copytree(ROOT / 'local/nss-files', source / 'files', dirs_exist_ok=True)
+        record = work / 'artifacts' / args.variant / 'build-record'
+        overlays = ('files', 'nss-files') if args.variant == 'nss' else ('files',)
+        sync_overlay([ROOT / 'local' / name for name in overlays], source / 'files',
+                     work / f'.{args.variant}-overlay.json',
+                     [record / 'local-inputs' / name for name in overlays])
         run('defconfig', ['make', 'defconfig'])
         check((source / '.config').read_text(), (source / 'tmp/.packageinfo').read_text(), requested)
-        record = work / 'artifacts' / args.variant / 'build-record'
         record.mkdir(parents=True, exist_ok=True)
         (record / 'requested.config').write_text(requested)
         shutil.copy2(source / '.config', record / 'resolved.config')
         shutil.copy2(ROOT / 'local/sources.lock.json', record)
         shutil.copy2(source / 'feeds.conf', record)
-        shutil.copytree(ROOT / 'local', record / 'local-inputs', dirs_exist_ok=True)
-        for name in ('build_local.py', 'homewrk_dts.py', 'check_defaults.py', 'kernel_module_cache.py'):
+        sync_overlay([ROOT / 'local'], record / 'local-inputs',
+                     work / f'.{args.variant}-record-inputs.json', [record / 'local-inputs'])
+        for name in ('build_local.py', 'homewrk_dts.py', 'check_defaults.py', 'kernel_module_cache.py', 'local_overlay.py'):
             shutil.copy2(ROOT / 'scripts' / name, record / name)
         (record / 'source.diff').write_text(git(source, 'diff', '--binary') + '\n')
         print('Configuration and requested package checks passed.', flush=True)

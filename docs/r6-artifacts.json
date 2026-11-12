@@ -1,0 +1,276 @@
+{
+  "build_revision": 6,
+  "hardware_tested": false,
+  "variants": {
+    "nss": {
+      "verification": {
+        "variant": "nss",
+        "source_commit": "4765b657625ec5bbda74b44400465fe043802b30",
+        "version_code": "local-nss-4765b657625e-r6",
+        "kernel": {
+          "release": "1",
+          "vermagic": "6cb93a1075ad7565cb686dc30128496a",
+          "version": "6.18.60"
+        },
+        "hardware_tested": false,
+        "devices": [
+          {
+            "device": "linksys_homewrk",
+            "compatible": "linksys,homewrk",
+            "images_verified": 3,
+            "installed_packages": 322,
+            "kernel": "6.18.60",
+            "sysupgrade_sha256": "61c16baffabe97c2ecca3e57398b4bf8ceeb114ba7445858d89ea983cf4a09b3",
+            "nss_default_on": true,
+            "nft_extensions": [
+              "kmod-nft-arp",
+              "kmod-nft-bridge",
+              "kmod-nft-compat",
+              "kmod-nft-connlimit",
+              "kmod-nft-core",
+              "kmod-nft-dup-inet",
+              "kmod-nft-fib",
+              "kmod-nft-fullcone",
+              "kmod-nft-nat",
+              "kmod-nft-netdev",
+              "kmod-nft-offload",
+              "kmod-nft-queue",
+              "kmod-nft-socket",
+              "kmod-nft-tproxy",
+              "kmod-nft-xfrm"
+            ],
+            "sharing_default_off": true,
+            "theme": "vantage",
+            "usteer_default_on": true,
+            "kernel_package_abi": "6.18.60~6cb93a1075ad7565cb686dc30128496a-r1"
+          },
+          {
+            "device": "linksys_mx4300",
+            "compatible": "linksys,mx4300",
+            "images_verified": 3,
+            "installed_packages": 322,
+            "kernel": "6.18.60",
+            "sysupgrade_sha256": "3f0f99b57c9287d7c5a371b0a5bc2f68487a584ceec51a37c664dc2ec14a00c5",
+            "nss_default_on": true,
+            "nft_extensions": [
+              "kmod-nft-arp",
+              "kmod-nft-bridge",
+              "kmod-nft-compat",
+              "kmod-nft-connlimit",
+              "kmod-nft-core",
+              "kmod-nft-dup-inet",
+              "kmod-nft-fib",
+              "kmod-nft-fullcone",
+              "kmod-nft-nat",
+              "kmod-nft-netdev",
+              "kmod-nft-offload",
+              "kmod-nft-queue",
+              "kmod-nft-socket",
+              "kmod-nft-tproxy",
+              "kmod-nft-xfrm"
+            ],
+            "sharing_default_off": true,
+            "theme": "vantage",
+            "usteer_default_on": true,
+            "kernel_package_abi": "6.18.60~6cb93a1075ad7565cb686dc30128496a-r1"
+          }
+        ],
+        "external_module_cache": {
+          "schema": 1,
+          "source_commit": "4765b657625ec5bbda74b44400465fe043802b30",
+          "kernel": "linux-6.18.60",
+          "vermagic": "6cb93a1075ad7565cb686dc30128496a"
+        }
+      },
+      "images": {
+        "linksys_homewrk": [
+          {
+            "filesystem": "squashfs",
+            "name": "immortalwrt-snapshot-local-nss-4765b657625e-r6-qualcommax-ipq807x-linksys_homewrk-squashfs-sysupgrade.bin",
+            "sha256": "61c16baffabe97c2ecca3e57398b4bf8ceeb114ba7445858d89ea983cf4a09b3",
+            "sha256_unsigned": "61c16baffabe97c2ecca3e57398b4bf8ceeb114ba7445858d89ea983cf4a09b3",
+            "size": 22057231,
+            "type": "sysupgrade"
+          },
+          {
+            "filesystem": "squashfs",
+            "name": "immortalwrt-snapshot-local-nss-4765b657625e-r6-qualcommax-ipq807x-linksys_homewrk-squashfs-factory.ubi",
+            "sha256": "1db869f0a8ce033037cdd4951bf24d971af59674b7dcff6a1848b82306e37197",
+            "sha256_unsigned": "1db869f0a8ce033037cdd4951bf24d971af59674b7dcff6a1848b82306e37197",
+            "size": 23592960,
+            "type": "factory"
+          },
+          {
+            "filesystem": "initramfs",
+            "name": "immortalwrt-snapshot-local-nss-4765b657625e-r6-qualcommax-ipq807x-linksys_homewrk-initramfs-uImage.itb",
+            "sha256": "c9bc053690549ebf0f8045e4f0b8f4d16edef2b7d439422dcf8a8f7e6889d8c1",
+            "sha256_unsigned": "c9bc053690549ebf0f8045e4f0b8f4d16edef2b7d439422dcf8a8f7e6889d8c1",
+            "size": 22693780,
+            "type": "kernel"
+          }
+        ],
+        "linksys_mx4300": [
+          {
+            "filesystem": "squashfs",
+            "name": "immortalwrt-snapshot-local-nss-4765b657625e-r6-qualcommax-ipq807x-linksys_mx4300-squashfs-sysupgrade.bin",
+            "sha256": "3f0f99b57c9287d7c5a371b0a5bc2f68487a584ceec51a37c664dc2ec14a00c5",
+            "sha256_unsigned": "3f0f99b57c9287d7c5a371b0a5bc2f68487a584ceec51a37c664dc2ec14a00c5",
+            "size": 22067469,
+            "type": "sysupgrade"
+          },
+          {
+            "filesystem": "squashfs",
+            "name": "immortalwrt-snapshot-local-nss-4765b657625e-r6-qualcommax-ipq807x-linksys_mx4300-squashfs-factory.bin",
+            "sha256": "14c6a25a18e6c262b1732a8e4fa28a80ddc4e0448a3446cb326a673018c62f46",
+            "sha256_unsigned": "14c6a25a18e6c262b1732a8e4fa28a80ddc4e0448a3446cb326a673018c62f46",
+            "size": 25694208,
+            "type": "factory"
+          },
+          {
+            "filesystem": "initramfs",
+            "name": "immortalwrt-snapshot-local-nss-4765b657625e-r6-qualcommax-ipq807x-linksys_mx4300-initramfs-uImage.itb",
+            "sha256": "6cbaf44b0023aa5a4c79939cc9cac0b720bd238d67b3ee8147b591010b0af51b",
+            "sha256_unsigned": "6cbaf44b0023aa5a4c79939cc9cac0b720bd238d67b3ee8147b591010b0af51b",
+            "size": 22696144,
+            "type": "kernel"
+          }
+        ]
+      }
+    },
+    "baseline": {
+      "verification": {
+        "variant": "baseline",
+        "source_commit": "4765b657625ec5bbda74b44400465fe043802b30",
+        "version_code": "local-baseline-4765b657625e-r6",
+        "kernel": {
+          "release": "1",
+          "vermagic": "6cb93a1075ad7565cb686dc30128496a",
+          "version": "6.18.60"
+        },
+        "hardware_tested": false,
+        "devices": [
+          {
+            "device": "linksys_homewrk",
+            "compatible": "linksys,homewrk",
+            "images_verified": 3,
+            "installed_packages": 318,
+            "kernel": "6.18.60",
+            "sysupgrade_sha256": "9d8a73bf95938f159c42bfb60c80f334b37eedcd08c89d8e6714e45989c27624",
+            "nss_default_on": false,
+            "nft_extensions": [
+              "kmod-nft-arp",
+              "kmod-nft-bridge",
+              "kmod-nft-compat",
+              "kmod-nft-connlimit",
+              "kmod-nft-core",
+              "kmod-nft-dup-inet",
+              "kmod-nft-fib",
+              "kmod-nft-fullcone",
+              "kmod-nft-nat",
+              "kmod-nft-netdev",
+              "kmod-nft-offload",
+              "kmod-nft-queue",
+              "kmod-nft-socket",
+              "kmod-nft-tproxy",
+              "kmod-nft-xfrm"
+            ],
+            "sharing_default_off": true,
+            "theme": "vantage",
+            "usteer_default_on": true,
+            "kernel_package_abi": "6.18.60~6cb93a1075ad7565cb686dc30128496a-r1"
+          },
+          {
+            "device": "linksys_mx4300",
+            "compatible": "linksys,mx4300",
+            "images_verified": 3,
+            "installed_packages": 318,
+            "kernel": "6.18.60",
+            "sysupgrade_sha256": "ac83873f1a77bb4955354de4be8047f6cee62c99cc1bf5d59bf3236de2d7475d",
+            "nss_default_on": false,
+            "nft_extensions": [
+              "kmod-nft-arp",
+              "kmod-nft-bridge",
+              "kmod-nft-compat",
+              "kmod-nft-connlimit",
+              "kmod-nft-core",
+              "kmod-nft-dup-inet",
+              "kmod-nft-fib",
+              "kmod-nft-fullcone",
+              "kmod-nft-nat",
+              "kmod-nft-netdev",
+              "kmod-nft-offload",
+              "kmod-nft-queue",
+              "kmod-nft-socket",
+              "kmod-nft-tproxy",
+              "kmod-nft-xfrm"
+            ],
+            "sharing_default_off": true,
+            "theme": "vantage",
+            "usteer_default_on": true,
+            "kernel_package_abi": "6.18.60~6cb93a1075ad7565cb686dc30128496a-r1"
+          }
+        ],
+        "external_module_cache": {
+          "schema": 1,
+          "source_commit": "4765b657625ec5bbda74b44400465fe043802b30",
+          "kernel": "linux-6.18.60",
+          "vermagic": "6cb93a1075ad7565cb686dc30128496a"
+        }
+      },
+      "images": {
+        "linksys_homewrk": [
+          {
+            "filesystem": "initramfs",
+            "name": "immortalwrt-snapshot-local-baseline-4765b657625e-r6-qualcommax-ipq807x-linksys_homewrk-initramfs-uImage.itb",
+            "sha256": "d019dd164801c246b037f9b7b8c9f690402acc57cf2170bb71c0fe230bf954a5",
+            "sha256_unsigned": "d019dd164801c246b037f9b7b8c9f690402acc57cf2170bb71c0fe230bf954a5",
+            "size": 22185228,
+            "type": "kernel"
+          },
+          {
+            "filesystem": "squashfs",
+            "name": "immortalwrt-snapshot-local-baseline-4765b657625e-r6-qualcommax-ipq807x-linksys_homewrk-squashfs-sysupgrade.bin",
+            "sha256": "9d8a73bf95938f159c42bfb60c80f334b37eedcd08c89d8e6714e45989c27624",
+            "sha256_unsigned": "9d8a73bf95938f159c42bfb60c80f334b37eedcd08c89d8e6714e45989c27624",
+            "size": 21330191,
+            "type": "sysupgrade"
+          },
+          {
+            "filesystem": "squashfs",
+            "name": "immortalwrt-snapshot-local-baseline-4765b657625e-r6-qualcommax-ipq807x-linksys_homewrk-squashfs-factory.ubi",
+            "sha256": "543bf89e4905d991dbe5ca672cafceb44f1b9d0ccd7777502c5c84a4c7876428",
+            "sha256_unsigned": "543bf89e4905d991dbe5ca672cafceb44f1b9d0ccd7777502c5c84a4c7876428",
+            "size": 22806528,
+            "type": "factory"
+          }
+        ],
+        "linksys_mx4300": [
+          {
+            "filesystem": "initramfs",
+            "name": "immortalwrt-snapshot-local-baseline-4765b657625e-r6-qualcommax-ipq807x-linksys_mx4300-initramfs-uImage.itb",
+            "sha256": "28124acaaf7703d1d29ec14d0cbe8fe0576a3510ac7ab14418369f44afcac946",
+            "sha256_unsigned": "28124acaaf7703d1d29ec14d0cbe8fe0576a3510ac7ab14418369f44afcac946",
+            "size": 22192468,
+            "type": "kernel"
+          },
+          {
+            "filesystem": "squashfs",
+            "name": "immortalwrt-snapshot-local-baseline-4765b657625e-r6-qualcommax-ipq807x-linksys_mx4300-squashfs-sysupgrade.bin",
+            "sha256": "ac83873f1a77bb4955354de4be8047f6cee62c99cc1bf5d59bf3236de2d7475d",
+            "sha256_unsigned": "ac83873f1a77bb4955354de4be8047f6cee62c99cc1bf5d59bf3236de2d7475d",
+            "size": 21340429,
+            "type": "sysupgrade"
+          },
+          {
+            "filesystem": "squashfs",
+            "name": "immortalwrt-snapshot-local-baseline-4765b657625e-r6-qualcommax-ipq807x-linksys_mx4300-squashfs-factory.bin",
+            "sha256": "1635db0817ad4d0929d8b71686420c022e2f7c093a7456ee2d6e617fd4bd7c1c",
+            "sha256_unsigned": "1635db0817ad4d0929d8b71686420c022e2f7c093a7456ee2d6e617fd4bd7c1c",
+            "size": 24907776,
+            "type": "factory"
+          }
+        ]
+      }
+    }
+  }
+}

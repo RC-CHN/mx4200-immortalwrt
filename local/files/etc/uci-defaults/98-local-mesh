@@ -1,6 +1,9 @@
 #!/bin/sh
-# The image contains roaming tools, but node roles, country, channels and keys
-# must be configured for the actual installation before enabling coordination.
+# Clean installs coordinate APs on LAN using upstream steering policies.
+# Preserve the user's service choice across config-preserving upgrades.
 [ ! -e /tmp/mx4300-config-restored ] || exit 0
-/etc/init.d/usteer disable
+uci set usteer.@usteer[0].enabled=1
+uci set usteer.@usteer[0].network=lan
+uci commit usteer
+/etc/init.d/usteer enable
 exit 0

@@ -1,2 +1,16 @@
 __pycache__/
 *.py[cod]
+
+# Build workspaces, signing material and private device evidence stay local.
+/artifacts/
+/build-record/
+/sources/
+/downloads/
+/hardware/
+/backups/
+/verification/
+private-key.pem
+*-private-key.pem
+ssh-password
+*.pcap
+*.pcapng

@@ -1,0 +1,26 @@
+name: Pinned MX4300 build checks
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  check:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+      - name: Check build and overlay guards
+        run: python3 -m unittest tests.test_local_overlay tests.test_homewrk_dts tests.test_kernel_module_cache
+      - name: Check shell syntax and source lock
+        run: |
+          python3 -m json.tool local/sources.lock.json > /dev/null
+          python3 - <<'PY'
+          from pathlib import Path
+          import subprocess
+          for root in ('local/files', 'local/nss-files'):
+              for path in Path(root).rglob('*'):
+                  if path.is_file() and path.read_bytes().startswith(b'#!/bin/sh'):
+                      subprocess.run(['sh', '-n', str(path)], check=True)
+          PY
+          git diff --check

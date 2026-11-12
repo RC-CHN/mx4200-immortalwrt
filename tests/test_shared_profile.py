@@ -29,7 +29,7 @@ class SharedProfileTests(unittest.TestCase):
                     [f"immortalwrt-qualcommax-ipq807x-linksys_mx4200{version}-squashfs-{kind}.bin"
                      for version in ('v1', 'v2') for kind in ('factory', 'sysupgrade')])
         self.assertEqual(data.get('release_groups', {}).get('mx4200', data)['images'], expected)
-        workflow = next((ROOT / '.github/workflows').glob('*'))
+        workflow = ROOT / '.github/workflows/MX4200.yml'
         text = workflow.read_text()
         for prefix in data['cache_prefix'].values():
             self.assertIn(prefix, text)

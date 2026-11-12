@@ -1,0 +1,5 @@
+config appearance 'appearance'
+	option theme 'auto'
+	option login 'grid'
+	option backdrop 'grid'
+	option brand 'hostname'

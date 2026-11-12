@@ -1,5 +1,5 @@
 {
-  "build_revision": 5,
+  "build_revision": 6,
   "source": {
     "url": "https://github.com/immortalwrt/immortalwrt.git",
     "commit": "4765b657625ec5bbda74b44400465fe043802b30"
@@ -30,6 +30,10 @@
     "nss": {
       "url": "https://github.com/JuliusBairaktaris/nss-packages.git",
       "commit": "1f60d7e9409930bbd298eae1831c5b76d21eb1d2"
+    },
+    "vantage": {
+      "url": "https://github.com/anothaDev/luci-theme-vantage.git",
+      "commit": "ed6be0a7c2fb836164ac0c2be9530ae5e2a21deb"
     }
   }
 }

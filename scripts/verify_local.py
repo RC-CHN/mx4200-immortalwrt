@@ -12,7 +12,9 @@ import tempfile
 
 
 REQUIRED = {
-    'base-files', 'wpad-openssl', 'usteer', 'luci-app-usteer', 'luci-theme-argon',
+    'base-files', 'wpad-openssl', 'usteer', 'luci-app-usteer',
+    'luci-theme-vantage', 'luci-app-vantage',
+    'luci-i18n-vantage-zh-cn', 'luci-i18n-vantage-theme-zh-cn',
     'luci-proto-wireguard', 'wireguard-tools', 'kmod-wireguard', 'kmod-tun',
     'kmod-ath11k-ahb', 'kmod-usb3', 'kmod-usb-dwc3-qcom',
     'kmod-usb-storage-uas', 'kmod-fs-ext4', 'kmod-fs-exfat',
@@ -124,6 +126,22 @@ def verify(work, variant):
             require(profiles['version_code'] in (fs / 'usr/lib/os-release').read_text(),
                     'Wrong local firmware version')
             require(REQUIRED <= packages, f'{device}: missing packages {sorted(REQUIRED - packages)}')
+            require('luci-theme-argon' not in packages, 'Old Argon package remains installed')
+            require(not (fs / 'www/luci-static/argon/css/mx4300.css').exists(),
+                    'Deleted Argon overlay remains in the image')
+            require(not (fs / 'usr/share/ucode/luci/template/themes/argon/sysauth.ut').exists(),
+                    'Deleted Argon login template remains in the image')
+            require('/luci-static/vantage' in (fs / 'etc/uci-defaults/99-mx4300').read_text(),
+                    'Vantage is not the clean-install default')
+            require("option theme 'auto'" in (fs / 'etc/config/vantage_theme').read_text(),
+                    'Vantage does not default to automatic colour mode')
+            # The modern CSS must not be mangled by the legacy CSS minifier.
+            css = source / 'feeds/vantage/luci-theme-vantage/htdocs/luci-static/vantage/vantage.css'
+            require((fs / 'www/luci-static/vantage/vantage.css').read_bytes() == css.read_bytes(),
+                    'Vantage CSS differs from the pinned source')
+            menu = json.loads((fs / 'usr/share/luci/menu.d/zz-luci-app-vantage.json').read_text())
+            require('admin/dashboard' in menu and 'admin/network/firewall/overview' not in menu,
+                    'Incompatible optional Vantage firewall overview must not be exposed')
             require(nft_packages <= packages, f'{device}: missing nftables extensions')
             require(not {'sing-box', 'sing-box-tiny', 'luci-app-homeproxy', 'luci-app-openclash',
                          'luci-app-passwall', 'luci-app-passwall2'} & packages,
@@ -154,6 +172,12 @@ def verify(work, variant):
                            'usr/sbin/rpc.nfsd', 'usr/sbin/exportfs'):
                 aarch64(fs / binary)
             require((fs / 'etc/uci-defaults/98-local-mesh').is_file(), 'Missing roaming startup policy')
+            steering = (fs / 'etc/uci-defaults/98-local-mesh').read_text()
+            require('/etc/init.d/usteer enable' in steering and
+                    'usteer.@usteer[0].enabled=1' in steering and
+                    '/tmp/mx4300-config-restored' in steering,
+                    'Wrong usteer clean-install/upgrade policy')
+            aarch64(fs / 'sbin/usteerd')
             service_policy = fs / 'etc/uci-defaults/99-local-services'
             original_policy = artifact / 'build-record/local-inputs/files/etc/uci-defaults/99-local-services'
             require(service_policy.read_bytes() == original_policy.read_bytes() and
@@ -183,6 +207,7 @@ def verify(work, variant):
                             'installed_packages': len(packages), 'kernel': kernel,
                             'sysupgrade_sha256': image['sha256'], 'nss_default_on': variant == 'nss',
                             'nft_extensions': sorted(nft_packages), 'sharing_default_off': True,
+                            'theme': 'vantage', 'usteer_default_on': True,
                             'kernel_package_abi': kernel_abi})
     report = {'variant': variant, 'source_commit': profiles['git_commit'],
               'version_code': profiles['version_code'],

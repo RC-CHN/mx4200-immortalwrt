@@ -1,9 +1,0 @@
-/* Local MX4300 identity. Argon retains its responsive layout and color system. */
-.mx4300-login-caption { text-align: center; margin: -8px 0 30px; font-size: .9rem; opacity: .8; }
-.login-page .brand-text { letter-spacing: .08em; }
-.login-page .login-form { border: 1px solid rgba(34,211,238,.2); }
-header.bg-primary { background-image: linear-gradient(115deg, rgba(3,20,39,.18), rgba(34,211,238,.14)); }
-.cbi-button:focus-visible, a:focus-visible { outline: 2px solid #0891b2; outline-offset: 3px; }
-@media (max-width: 480px) {
-  .mx4300-login-caption { font-size: .8rem; overflow-wrap: anywhere; }
-}

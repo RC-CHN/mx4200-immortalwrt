@@ -27,7 +27,7 @@ set system.@system[0].hostname=mx4300-$(echo "$suffix" | tr 'A-F' 'a-f')
 set system.@system[0].timezone=CST-8
 set system.@system[0].zonename=Asia/Shanghai
 set luci.main.lang=zh_cn
-set luci.main.mediaurlbase=/luci-static/argon
+set luci.main.mediaurlbase=/luci-static/vantage
 EOF
 uci set mx4300.defaults.applied=1
 uci commit

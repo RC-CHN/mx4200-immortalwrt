@@ -51,7 +51,7 @@ class OfficialMigrationTests(unittest.TestCase):
         self.assertIn('REPO_URL="https://github.com/immortalwrt/immortalwrt.git"', settings)
         self.assertIn('REPO_REF="master"', settings)
         self.assertNotIn('REPO_BRANCH=', settings)
-        self.assertIn('最新 snapshot 源码', (ROOT / 'README.md').read_text())
+        self.assertIn('最新 snapshot 源码', (ROOT / 'docs/upstream-README.md').read_text())
         text = (ROOT / '.github/workflows/MX4200.yml').read_text()
         self.assertNotIn('git ls-remote --tags', text)
         self.assertIn('git fetch --unshallow origin "$SOURCE_REF:refs/remotes/origin/master"', text)

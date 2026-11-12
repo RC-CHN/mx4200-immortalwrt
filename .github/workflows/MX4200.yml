@@ -1,11 +1,8 @@
-name: MX4200 ImmortalWrt Builds
+name: Legacy rolling build (user/default)
 
 on:
   workflow_dispatch:
 
-  # Daily at 12:00 Hong Kong time (04:00 UTC).
-  schedule:
-    - cron: '0 4 * * *'
 concurrency:
   group: mx4200-build
   cancel-in-progress: false
@@ -240,6 +237,7 @@ jobs:
         [[ "$SOURCE_REF" = master ]]
         SOURCE_SHA="$(cat build-record/source-sha.txt)"
         [[ "$SOURCE_SHA" =~ ^[0-9a-f]{40}$ ]]
+        SOURCE_URL="https://github.com/immortalwrt/immortalwrt/commit/$SOURCE_SHA"
         BUILD_TIME="$(TZ=Asia/Hong_Kong date '+%Y-%m-%d %H:%M:%S %Z')"
         for GROUP in mx4200 mx4300-homewrk; do
           case "$GROUP" in
@@ -261,7 +259,7 @@ jobs:
           cat > "$RELEASE_NOTES" <<EOF
         ## $MODELS ImmortalWrt
 
-        - 源码：[ImmortalWrt master](https://github.com/immortalwrt/immortalwrt)
+        - 源码：[ImmortalWrt $SOURCE_SHA]($SOURCE_URL)
         - 构建时间：$BUILD_TIME
         - 镜像：$INSTALL
         - 请选择对应机型镜像，不可混刷。

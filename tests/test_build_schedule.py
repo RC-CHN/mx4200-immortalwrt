@@ -1,8 +1,6 @@
-"""Verify direct cron scheduling without dispatching a firmware build."""
-from datetime import datetime
+"""The legacy rolling build must not publish on a schedule in this fork."""
 from pathlib import Path
 import unittest
-from zoneinfo import ZoneInfo
 
 import yaml
 
@@ -15,13 +13,9 @@ class BuildScheduleTests(unittest.TestCase):
         cls.workflow = yaml.safe_load(
             (ROOT / '.github/workflows/MX4200.yml').read_text())
 
-    def test_daily_cron_at_hong_kong_noon(self):
+    def test_legacy_build_is_manual_only(self):
         triggers = self.workflow.get('on', self.workflow.get(True))
-        self.assertEqual(triggers['schedule'], [{'cron': '0 4 * * *'}])
-        self.assertEqual(set(triggers), {'schedule', 'workflow_dispatch'})
-        local = datetime(2026, 11, 1, 4, tzinfo=ZoneInfo('UTC')).astimezone(
-            ZoneInfo('Asia/Hong_Kong'))
-        self.assertEqual((local.hour, local.minute), (12, 0))
+        self.assertEqual(set(triggers), {'workflow_dispatch'})
 
     def test_build_runs_without_date_gate(self):
         self.assertEqual(set(self.workflow['jobs']), {'build'})
