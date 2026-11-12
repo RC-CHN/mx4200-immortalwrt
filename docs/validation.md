@@ -22,7 +22,7 @@ NSS 与 baseline 均成功编译，各生成 HomeWRK、MX4300 两种布局，每
 | baseline | `linksys_homewrk` | 21,330,191 | 20.34 MiB | `9d8a73bf95938f159c42bfb60c80f334b37eedcd08c89d8e6714e45989c27624` |
 | baseline | `linksys_mx4300` | 21,340,429 | 20.35 MiB | `ac83873f1a77bb4955354de4be8047f6cee62c99cc1bf5d59bf3236de2d7475d` |
 
-这些哈希标识本机这一轮构建。不同签名密钥、宿主工具或构建环境可能影响输出，不承诺在任意机器逐字节复现。源码和包版本固定，可重新构建相同功能配置。二进制与配套 APK 保存在本地，尚未作为经过 r6 实机验收的 Release 发布。
+这些哈希标识本机这一轮构建。不同签名密钥、宿主工具或构建环境可能影响输出，不承诺在任意机器逐字节复现。源码和包版本固定，可重新构建相同功能配置。二进制、配套 APK、公开构建记录和对应源码归档已提供为 [r6 预发布版](https://github.com/RC-CHN/mx4200-immortalwrt/releases/tag/mx4300-r6)，尚未经过 r6 实机验收。Release 的 `SHA256SUMS` 覆盖全部附件。
 
 ### 检查命令
 

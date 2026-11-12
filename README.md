@@ -4,6 +4,12 @@
 
 这是 [yahuisme/mx4200-immortalwrt](https://github.com/yahuisme/mx4200-immortalwrt) 的派生项目，保留 ImmortalWrt 应用生态，并整合 NSS 无线支持。标准 MX4300 与 HomeWRK 的分区布局不同，**镜像不可混刷**。外壳型号或卖家描述不能代替设备树和分区核实。
 
+## 下载固件
+
+[下载 r6 预发布版](https://github.com/RC-CHN/mx4200-immortalwrt/releases/tag/mx4300-r6)。提供 NSS / baseline 两套的 HomeWRK / 标准 MX4300 镜像、配套 APK、SHA-256、构建记录和对应源码归档。
+
+默认选择 NSS；按实际板级身份选择 `linksys_homewrk` 或 `linksys_mx4300`。已装兼容系统时使用对应 `sysupgrade.bin`。r6 已完成编译和镜像校验，尚未实机刷入验收，因此标为预发布。完整选择说明见 Release 页面。
+
 ## 默认设置
 
 | 项目 | 全新安装 / 恢复出厂的默认值 |
