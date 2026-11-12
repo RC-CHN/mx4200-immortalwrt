@@ -35,6 +35,7 @@ python3 scripts/check_vantage.py --work "$HOME/mx4300-build"
 ```
 
 最后一项需 Node.js、GNU gettext、Perl，读取已经编译的 NSS 镜像与固定 feed，不接触路由器。其模板测试引擎不能直接读取 ucode 字节码，因此从同次固定 LuCI feed 提供对应的模板源码。
+仓库的设备树测试还需 `device-tree-compiler`（含 `dtc`、`fdtget`、`fdtput`）；包含旧工作流测试时需 Python 的 PyYAML。
 
 - 本次相关仓库测试：23 项，22 通过、1 项上游条件跳过。
 - Vantage 测试：470 通过、4 条件跳过；另外明确排除 1 项旧 fw4 否定协议语义测试，其对应附加页面已从固件菜单移除。没有修改实际防火墙去迎合旧测试。
