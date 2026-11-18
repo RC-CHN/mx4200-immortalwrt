@@ -158,6 +158,13 @@ def verify(work, variant):
                     require(f'kernel={kernel_abi}' in fields.get('D', '').split(),
                             f'Package {name} does not match the installed kernel ABI')
             modules = fs / 'lib/modules' / kernel
+            if lock['build_revision'] >= 7:
+                for module_name, handler in (('cfg80211', 'nl80211_testmode_do'),
+                                             ('mac80211', 'ieee80211_testmode_cmd'),
+                                             ('ath11k', 'ath11k_tm_cmd')):
+                    symbols = output(['nm', '--defined-only', modules / f'{module_name}.ko'])
+                    require(re.search(rf'^[0-9a-fA-F]+ [tT] {handler}$', symbols, re.M),
+                            f'{device}: {module_name} lacks {handler}')
             for name in ('wireguard', 'ath11k', 'ath11k_ahb', 'xhci-hcd', 'dwc3-qcom', 'uas',
                          'tun', 'nft_tproxy', 'nft_socket', 'nft_meta_bridge',
                          'nft_queue', 'nft_compat', 'nfnetlink_log',

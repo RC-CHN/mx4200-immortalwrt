@@ -1,14 +1,14 @@
 # MX4300 / HomeWRK ImmortalWrt
 
-面向 Linksys MX4300 与 HomeWRK 的固定版本定制固件。默认使用 **NSS 版、Vantage 主题与仪表盘、usteer 漫游协调**，另提供不含 NSS 的 baseline 版。源码、feeds 和主题都固定到提交，当前构建版本为 **r6**，Linux **6.18.60**。
+面向 Linksys MX4300 与 HomeWRK 的固定版本定制固件。默认使用 **NSS 版、Vantage 主题与仪表盘、usteer 漫游协调**，另提供不含 NSS 的 baseline 版。当前构建版本为 **r7**，沿用 r6 的源码、feeds 和 Linux **6.18.60**。两版均启用 `CONFIG_PACKAGE_CFG80211_TESTMODE=y`，正常启动仍使用 AP 模式。FTM 启动和发射功率控制需另外实测。
 
 这是 [yahuisme/mx4200-immortalwrt](https://github.com/yahuisme/mx4200-immortalwrt) 的派生项目，保留 ImmortalWrt 应用生态，并整合 NSS 无线支持。标准 MX4300 与 HomeWRK 的分区布局不同，**镜像不可混刷**。外壳型号或卖家描述不能代替设备树和分区核实。
 
 ## 下载固件
 
-[下载 r6 预发布版](https://github.com/RC-CHN/mx4200-immortalwrt/releases/tag/mx4300-r6)。提供 NSS / baseline 两套的 HomeWRK / 标准 MX4300 镜像、配套 APK、SHA-256、构建记录和对应源码归档。
+[下载 r7 预发布版](https://github.com/RC-CHN/mx4200-immortalwrt/releases/tag/mx4300-r7)。提供 NSS / baseline 两套的 HomeWRK / 标准 MX4300 镜像、配套 APK、SHA-256、构建记录和对应源码归档。[上一版 r6](https://github.com/RC-CHN/mx4200-immortalwrt/releases/tag/mx4300-r6) 仍可下载。
 
-默认选择 NSS；按实际板级身份选择 `linksys_homewrk` 或 `linksys_mx4300`。已装兼容系统时使用对应 `sysupgrade.bin`。r6 已完成编译和镜像校验，尚未实机刷入验收，因此标为预发布。完整选择说明见 Release 页面。
+默认选择 NSS；按实际板级身份选择 `linksys_homewrk` 或 `linksys_mx4300`。已装兼容系统时使用对应 `sysupgrade.bin`。维护者已确认 r6 实机可用。完整选择说明见 Release 页面。
 
 ## 默认设置
 
@@ -88,12 +88,12 @@ ARM64 主机无需 `gcc-multilib`。至少预留 30 GiB；两套完整构建建�
 
 使用同次构建的 kmod 包，不能强装其他 snapshot 的模块。构建脚本先核对实际内核 ABI，再决定是否重编外置模块；仅看版本字符串或 vermagic 不能证明缓存正确。定制覆盖文件也有归属记录，删除旧主题会同步清理，而遇到手动改过的文件会停止，不直接覆盖。
 
-旧滚动构建工作流保留为手动入口，**不生成本 README 的固定 r6 配置，也不再定时运行**；其说明见 [历史上游 README](docs/upstream-README.md)。新的轻量 CI 检查定制构建脚本；完整固件使用上述本地入口。
+旧滚动构建工作流保留为手动入口，说明见 [历史上游 README](docs/upstream-README.md)。轻量 CI 检查定制构建脚本，固定版本固件使用上述本地入口。
 
 ## 刷机、验证与许可
 
 先阅读 [安装与恢复要点](docs/homewrk-recovery.md) 和 [测试记录](docs/validation.md)。首次写 NAND 前必须核实身份、离线保存完整分区备份、验证恢复入口，并先从内存启动待刷镜像。已经运行兼容 ImmortalWrt 后通常可通过 LAN / LuCI / SSH 升级；TTL 留作启动失败时的恢复手段。
 
-r5 曾在一台 HomeWRK 完成 NAND 安装、保留配置网络升级、NSS 开关/启动保护和有线负载测试。**r6 的主题与 usteer 改动在本地构建和检查，不把 r5 的实机结果当作 r6 已经实机验收。** 原始 NAND、设备密钥、串口记录和真实设备截图不进入公开仓库。
+r5 曾在一台 HomeWRK 完成 NAND 安装、保留配置网络升级、NSS 开关/启动保护和有线负载测试。各版本的实测范围见 [测试记录](docs/validation.md)。
 
 本仓库保留 [GPLv3 许可文本](LICENSE)。包含与引用的各项目按各自许可分发，详见 [第三方来源与修改说明](THIRD_PARTY_NOTICES.md)。NSS 固件为上游提供的二进制固件，使用自身发行许可；整套镜像并非所有组件都采用同一许可。

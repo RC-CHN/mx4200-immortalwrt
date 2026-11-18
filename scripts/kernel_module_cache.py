@@ -31,15 +31,16 @@ def prepare_module_cache(source, state_file, source_commit, run, jobs):
     magic = magic_files[0].read_text().strip()
     if not re.fullmatch(r'[0-9a-f]{32}', magic):
         raise ValueError('Missing or invalid configured kernel ABI')
+    config = (source / '.config').read_text()
     identity = {'schema': 1, 'source_commit': source_commit,
-                'kernel': magic_files[0].parent.name, 'vermagic': magic}
+                'kernel': magic_files[0].parent.name, 'vermagic': magic,
+                'cfg80211_testmode': 'CONFIG_PACKAGE_CFG80211_TESTMODE=y' in config.splitlines()}
     try:
         previous = json.loads(state_file.read_text())
     except (FileNotFoundError, ValueError):
         previous = None
     if previous != identity:
-        sources = selected_module_sources((source / '.config').read_text(),
-                                          (source / 'tmp/.packageinfo').read_text())
+        sources = selected_module_sources(config, (source / 'tmp/.packageinfo').read_text())
         if sources:
             run('kernel-module-clean', ['make', *[p + '/clean' for p in sources], 'V=s'])
     # Only the caller's successful complete build may mark the cache current.

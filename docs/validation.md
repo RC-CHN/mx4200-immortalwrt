@@ -1,6 +1,12 @@
 # 构建与验证记录
 
-记录日期：2026-11-12。r6 的固定配置见 `local/sources.lock.json`；完整镜像元数据与解包校验结果见 [r6-artifacts.json](r6-artifacts.json)。这里明确区分静态/本地检查与真实设备测试。
+2026-11-18，维护者确认 r6 已在实机测试可用。下文的 r6 构建数据记录于 2026-11-12，完整镜像元数据与解包校验结果见 [r6-artifacts.json](r6-artifacts.json)。
+
+## r7 无线测试接口
+
+NSS 与 baseline 的最终配置均为 `CONFIG_PACKAGE_CFG80211_TESTMODE=y`。两个变体共生成 12 个镜像。四个 sysupgrade 的根文件系统均包含 cfg80211 的 `nl80211_testmode_do`、mac80211 的 `ieee80211_testmode_cmd` 和 ath11k 的 `ath11k_tm_cmd`。本次通过了 12 项构建脚本回归测试。
+
+HomeWRK NSS 升级包在运行 r5 的 HomeWRK 上通过默认保留配置的 `sysupgrade -T` 检查，退出码为 0。镜像 SHA-256 为 `72330883358e63df7f7c2eaf39976656023a9f90442cb0bcacf8192aebd908c3`。此次检测只读取镜像，r7 启动、FTM 指令应答和射频输出仍待实测。
 
 ## r6：Vantage + usteer
 
@@ -22,7 +28,7 @@ NSS 与 baseline 均成功编译，各生成 HomeWRK、MX4300 两种布局，每
 | baseline | `linksys_homewrk` | 21,330,191 | 20.34 MiB | `9d8a73bf95938f159c42bfb60c80f334b37eedcd08c89d8e6714e45989c27624` |
 | baseline | `linksys_mx4300` | 21,340,429 | 20.35 MiB | `ac83873f1a77bb4955354de4be8047f6cee62c99cc1bf5d59bf3236de2d7475d` |
 
-这些哈希标识本机这一轮构建。不同签名密钥、宿主工具或构建环境可能影响输出，不承诺在任意机器逐字节复现。源码和包版本固定，可重新构建相同功能配置。二进制、配套 APK、公开构建记录和对应源码归档已提供为 [r6 预发布版](https://github.com/RC-CHN/mx4200-immortalwrt/releases/tag/mx4300-r6)，尚未经过 r6 实机验收。Release 的 `SHA256SUMS` 覆盖全部附件。
+这些哈希标识本机这一轮构建。不同签名密钥、宿主工具或构建环境可能影响输出，不承诺在任意机器逐字节复现。源码和包版本固定，可重新构建相同功能配置。二进制、配套 APK、公开构建记录和对应源码归档已提供为 [r6 预发布版](https://github.com/RC-CHN/mx4200-immortalwrt/releases/tag/mx4300-r6)。Release 的 `SHA256SUMS` 覆盖全部附件。
 
 ### 检查命令
 
@@ -45,7 +51,7 @@ python3 scripts/check_vantage.py --work "$HOME/mx4300-build"
 
 也运行过继承仓库的 350 项旧测试：本次调整后，剩余 7 项旧缓存/HomeProxy 测试问题在未修改的 r5 提交 `55f9002` 上逐项复现（缓存祖先路径/键、损坏压缩流用例和旧 `FORBIDDEN_PACKAGES` 导入）。它们属于旧滚动构建路径，不被固定版本本地构建入口调用。没有把全仓库旧测试描述为全部通过；新的 CI 运行定制构建的回归检查。
 
-r6 未刷入测试设备 NAND，也未以 r6 做无线/有线负载测试。没有完整的 Vantage 回放录制，因此本次没有把测试替身当作真实路由器的 UI 验收或截图。
+r6 发布时的检查以构建与镜像为主。维护者随后确认实机可用，未提供逐项负载测试数据。
 
 ## r5 及此前的 HomeWRK 实机结果
 
